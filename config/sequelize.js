@@ -1,8 +1,8 @@
 const { Sequelize } = require('sequelize');
 
 // Initialize Sequelize
-const sequelize = new Sequelize('hcrf', 'root', '', { 
-    host: 'localhost',
+const sequelize = new Sequelize('dbs13177801', 'dbu1235704', 'hcrf7861%', { 
+    host: 'db5016192254.hosting-data.io',
     dialect: 'mysql',
 });
 
