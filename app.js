@@ -24,11 +24,12 @@ const app = express();
 
 // Configure CORS to allow requests from the frontend
 const corsOptions = {
-  origin: ["http://localhost:3000", "null", "http://127.0.0.1:3000","*"], // Add other allowed origins (e.g., 'null' for local file access)
-  methods: "GET,POST,DELETE,UPDATE,PUT",
-  allowedHeaders: "Content-Type, Authorization",
+  origin: ['http://localhost:3000', 'null','http://127.0.0.1:3000'], // Add other allowed origins (e.g., 'null' for local file access)
+  methods: 'GET,POST,DELETE,UPDATE,PUT',
+  allowedHeaders: 'Content-Type, Authorization',
 };
 app.use(cors(corsOptions));
+
 
 
 app.use(express.json());
