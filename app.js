@@ -24,7 +24,7 @@ const app = express();
 
 // Configure CORS to allow requests from the frontend
 const corsOptions = {
-  origin: ['http://localhost:3000', 'null', 'http://127.0.0.1:3000'],
+  origin: ['http://localhost:4550', 'null', 'http://127.0.0.1:4550', 'https://khcrf.org'],
   methods: 'GET,POST,DELETE,UPDATE,PUT',
   allowedHeaders: 'Content-Type, Authorization',
 };
