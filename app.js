@@ -23,12 +23,12 @@ const sequelize = require("./config/sequelize");
 const app = express();
 
 // Configure CORS to allow requests from the frontend
-export const corsOptions = {
-  origin: ['http://localhost:3000', 'null', 'http://127.0.0.1:3000', 'https://hcrf.org', "http://localhost:4550"],
-  methods: 'GET,POST,DELETE,UPDATE,PUT',
-  allowedHeaders: 'Content-Type, Authorization',
-};
-app.use();
+// const corsOptions = {
+//   origin: ["http://localhost:3000", "null", "http://127.0.0.1:3000", "https://hcrf.org", "http://localhost:4550"],
+//   methods: "GET,POST,DELETE,UPDATE,PUT",
+//   allowedHeaders: "Content-Type, Authorization",
+// };
+app.use(cors());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
