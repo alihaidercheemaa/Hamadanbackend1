@@ -170,9 +170,68 @@ const refreshToken = async (req, res) => {
     }
 };
 
+
+const forgotPassword = async (req, res) => {
+    const { email } = req.body;
+
+    try {
+        const user = await User.findOne({ where: { email } });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Generate a reset token
+        const resetToken = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        // Create a reset link pointing to your resetPassword.html file
+        const resetLink = `${process.env.DOMAIN}?token=${resetToken}`;
+        const subject = 'Password Reset Request';
+        const text = `You requested to reset your password. Please use the link below to set a new password:\n\n${resetLink}`;
+
+        // Send the email with the reset link
+        await sendEmail(email, subject, text);
+
+        res.status(200).json({ message: 'Password reset email sent. Please check your email.' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+
+// Reset password - Verify token and update password
+const resetPassword = async (req, res) => {
+    const { token, newPassword } = req.body;
+
+    try {
+        // Verify reset token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await User.findByPk(decoded.userId);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Hash and update the password
+        user.password = await bcrypt.hash(newPassword, 10);
+        await user.save();
+
+        res.status(200).json({ message: 'Password has been reset successfully.' });
+    } catch (error) {
+        if (error.name === 'TokenExpiredError') {
+            return res.status(400).json({ message: 'Reset token has expired.' });
+        }
+        res.status(500).json({ message: error.message });
+    }
+};
+
+
 module.exports = {
     register,
     verifyOtp,
     login,
     refreshToken,
+    forgotPassword,
+    resetPassword,
 };
+ 

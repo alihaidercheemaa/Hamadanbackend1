@@ -2,8 +2,10 @@ const BadgeApplication = require('../models/BadgeApplication');
 
 const submitBadgeApplication = async (req, res) => {
   try {
-    console.log("Received form submission:", req.body); // Log the request body
+    console.log('Request Body:', req.body); // Log the request body
+    console.log('Uploaded Files:', req.files); // Log the uploaded files
 
+    // Destructure the incoming data from req.body
     const {
       businessName,
       contactPerson,
@@ -18,28 +20,28 @@ const submitBadgeApplication = async (req, res) => {
       certification,
     } = req.body;
 
-    // Debugging the parsed values
-    const parsedBadges = typeof badges === 'string' ? JSON.parse(badges) : badges;
-    const parsedDocumentation = typeof documentation === 'string' ? JSON.parse(documentation) : documentation;
+    // Check if badges and documentation are JSON strings, and parse them if necessary
+    const parsedBadges = badges && typeof badges === 'string' ? JSON.parse(badges) : badges;
+    const parsedDocumentation = documentation && typeof documentation === 'string' ? JSON.parse(documentation) : documentation;
 
-    console.log("Parsed Badges:", parsedBadges);
-    console.log("Parsed Documentation:", parsedDocumentation);
+    // Handle uploaded files, extracting their paths
+    const filePaths = req.files ? req.files.map((file) => file.path) : [];
 
+    // Save the application data to the database
     const application = await BadgeApplication.create({
       businessName,
       contactPerson,
       emailAddress,
       phoneNumber,
       businessAddress,
-      badges: parsedBadges,
+      badges: parsedBadges, // Use parsed badges (if any)
       businessDescription,
       productionMethods,
-      supportingDocumentation: parsedDocumentation,
+      supportingDocumentation: parsedDocumentation, // Use parsed documentation (if any)
       otherDocumentation,
       certification,
+      uploadedFiles: JSON.stringify(filePaths), // Store file paths as a JSON string
     });
-
-    console.log("Application saved to database:", application);
 
     res.status(201).json({
       success: true,
@@ -47,10 +49,13 @@ const submitBadgeApplication = async (req, res) => {
       application,
     });
   } catch (error) {
-    console.error("Error during application submission:", error); // Log the error
+    console.error('Error during application submission:', error);
     res.status(500).json({ success: false, message: 'Server error.', error: error.message });
   }
 };
+
+
+
 
 // Retrieve all badge applications
 const getAllBadgeApplications = async (req, res) => {
