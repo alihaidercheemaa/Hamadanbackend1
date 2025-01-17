@@ -22,8 +22,26 @@ exports.submitCollaborationForm = async (req, res) => {
       futureComm,
     } = req.body;
 
-    const supportingDocuments = req.file ? req.file.path : null;
+    // Validate required fields
+    if (!orgName || !contactName || !email || !agreeTerms) {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing required fields: orgName, contactName, email, or agreeTerms.',
+      });
+    }
 
+    // Parse JSON fields safely
+    const parsedCollaborationAreas = collaborationAreas ? JSON.parse(collaborationAreas) : [];
+    const parsedCollaborationType = collaborationType ? JSON.parse(collaborationType) : [];
+
+    // Convert boolean fields to integers (1 for true, 0 for false)
+    const agreeTermsInt = agreeTerms === 'on' || agreeTerms === true ? 1 : 0;
+    const futureCommInt = futureComm === 'on' || futureComm === true ? 1 : 0;
+
+    // Handle file upload
+    const supportingDocuments = req.file?.path || null;
+
+    // Create a new collaboration entry
     const collaboration = await Collaboration.create({
       orgName,
       website,
@@ -31,17 +49,17 @@ exports.submitCollaborationForm = async (req, res) => {
       email,
       phone,
       country,
-      collaborationAreas: JSON.parse(collaborationAreas || '[]'),
+      collaborationAreas: parsedCollaborationAreas,
       otherArea,
       projectTitle,
       projectDescription,
       expectedOutcomes,
-      collaborationType: JSON.parse(collaborationType || '[]'),
+      collaborationType: parsedCollaborationType,
       otherCollaboration,
       supportingDocuments,
-      agreeTerms,
-      futureComm,
-      status: 'pending',
+      agreeTerms: agreeTermsInt,
+      futureComm: futureCommInt,
+      status: 'pending', // Default status
     });
 
     res.status(201).json({
@@ -50,8 +68,11 @@ exports.submitCollaborationForm = async (req, res) => {
       collaboration,
     });
   } catch (error) {
-    console.error('Error during collaboration submission:', error);
-    res.status(500).json({ success: false, message: 'Internal server error.' });
+    console.error('Error during collaboration submission:', error.message, error.stack);
+    res.status(500).json({
+      success: false,
+      message: 'An error occurred while submitting the collaboration form. Please try again.',
+    });
   }
 };
 
